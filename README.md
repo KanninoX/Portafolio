@@ -12,8 +12,8 @@ en un activador de tiempo.
 3. `handleJobHire` reserva al empleado (ventana de 24 h) para que las entregas
    duplicadas no suban los documentos dos veces, y luego carga:
    - los documentos de la carpeta de Drive de **su empresa** → carpeta BUK `Documentos entregados`;
-   - los del **Modelo de Prevención de Delitos**, para todos los trabajadores sin
-     importar la empresa → carpeta BUK `Modelo de Prevención de Delitos`;
+   - los del **Modelo Prevención de Delitos** de su empresa, que van para todos
+     los trabajadores → carpeta BUK `Modelo Prevención de Delitos`;
    - el documento **IRL** que corresponda al cargo, solo para Invermar (ID 1) →
      carpeta BUK `SSO`.
 
@@ -23,8 +23,10 @@ Las credenciales **no** están en el código: se leen desde las Propiedades del
 script (`PropertiesService`) mediante `_cfg_()`, `_authToken_()` y `_bukBase_()`.
 
 Las carpetas de Drive por empresa están en el arreglo `companies` dentro de
-`getEmployeeData()`. Las del Modelo de Prevención de Delitos, en las constantes
-`MPD_FOLDER_ID` / `MPD_BUK_PATH` / `MPD_CONFIG` al inicio del archivo.
+`getEmployeeData()`: `carpeta_drive` para los documentos de contratación y
+`carpeta_mpd` para los del Modelo Prevención de Delitos. El nombre de la carpeta
+destino en BUK y su configuración de visibilidad y firma están en las constantes
+`MPD_BUK_PATH` y `MPD_CONFIG`, al inicio del archivo.
 
 ## Desarrollo
 

@@ -4,12 +4,11 @@
  */
 
 /**
- * Modelo de Prevención de Delitos: aplica a TODO trabajador nuevo, sin importar
- * la empresa, por eso vive acá y no en el listado de empresas.
+ * Modelo Prevención de Delitos: aplica a todo trabajador nuevo, pero los
+ * documentos cambian según la empresa (ver `carpeta_mpd` en `getEmployeeData`).
  * En BUK el parámetro `path` crea la carpeta si todavía no existe.
  */
-const MPD_FOLDER_ID = "1Bkz7iqmmjtPU6sbZ4bSUBFVq049LcP7b";
-const MPD_BUK_PATH  = "Modelo de Prevención de Delitos";
+const MPD_BUK_PATH  = "Modelo Prevención de Delitos";
 
 /** Son informativos: visibles para el trabajador y sin firma de ninguna parte. */
 const MPD_CONFIG = {
@@ -487,8 +486,8 @@ function handleJobHire(employeeId) {
 
     copyDocumentsFromDrive(employeeId, employeeData.company);
 
-    // Modelo de Prevención de Delitos: para todos, independiente de la empresa
-    copyMPDDocuments(employeeId);
+    // Modelo Prevención de Delitos: para todos, con los documentos de su empresa
+    copyMPDDocuments(employeeId, employeeData.company);
 
     // Carga adicional de documentos IRL
     processIRLDocument(employeeId, _authToken_(), employeeData);
@@ -558,6 +557,7 @@ function getEmployeeData(employeeId) {
             "id": 1,
             "empresa_name": "Invermar S.A.",
             "carpeta_drive": "https://drive.google.com/drive/folders/18r7MJALL05qZmtIAfM1taANT8lBL3rLg?usp=drive_link",
+            "carpeta_mpd": "https://drive.google.com/drive/folders/1Lf390LzN38C9z3LIRoJs2jj81KrR5pDK?usp=drive_link",
             "visible_trabajador": true,
             "firmable_por_el_trabajador": false
           },
@@ -565,6 +565,7 @@ function getEmployeeData(employeeId) {
             "id": 2,
             "empresa_name": "Pesquera La Portada S.A.",
             "carpeta_drive": "https://drive.google.com/drive/folders/1wBAYUyfhQWUk3FJAV_4iOVEhtkHBwQL3?usp=drive_link",
+            "carpeta_mpd": "https://drive.google.com/drive/folders/1wykdnokuWXjAzkBP8_Nbw4l-ko5uq-A-?usp=drive_link",
             "visible_trabajador": true,
             "firmable_por_el_trabajador": true
           },
@@ -572,6 +573,7 @@ function getEmployeeData(employeeId) {
             "id": 3,
             "empresa_name": "La Península S.A.",
             "carpeta_drive": "https://drive.google.com/drive/folders/1bKhbAfiXmayL_VjKJfNa4zxGLYo2rOXB?usp=drive_link",
+            "carpeta_mpd": "https://drive.google.com/drive/folders/1dLJa0sdVpLajkXp229UJMJsZfnxarqkt?usp=drive_link",
             "visible_trabajador": true,
             "firmable_por_el_trabajador": true
           },
@@ -579,6 +581,7 @@ function getEmployeeData(employeeId) {
             "id": 4,
             "empresa_name": "Astilleros Calbuco S.A.",
             "carpeta_drive": "https://drive.google.com/drive/folders/1fEJHIULau2LrkBisb6_ydFlQxxBohLEE?usp=drive_link",
+            "carpeta_mpd": "https://drive.google.com/drive/folders/1aWyfnBHlAcY6d0u5vjjK93enl2xF5ttr?usp=drive_link",
             "visible_trabajador": true,
             "firmable_por_el_trabajador": true
           }
@@ -650,14 +653,20 @@ function copyDocumentsFromDrive(employeeId, company) {
 }
 
 /**
- * Sube los documentos del Modelo de Prevención de Delitos a su propia carpeta
- * en BUK. Van para todos los trabajadores, sea cual sea la empresa.
+ * Sube los documentos del Modelo Prevención de Delitos a su propia carpeta en
+ * BUK. Van para todos los trabajadores, con los documentos de su empresa.
  */
-function copyMPDDocuments(employeeId) {
+function copyMPDDocuments(employeeId, company) {
   try {
-    console.log(`Iniciando copia de documentos MPD para empleado ${employeeId}`);
+    console.log(`Iniciando copia de documentos MPD para empleado ${employeeId} de empresa ${company.empresa_name}`);
 
-    const sourceFolder = DriveApp.getFolderById(MPD_FOLDER_ID);
+    const folderId = extractFolderIdFromUrl(company.carpeta_mpd || "");
+    if (!folderId) {
+      console.log(`[MPD] ✗ No hay carpeta MPD configurada para ${company.empresa_name}`);
+      return;
+    }
+
+    const sourceFolder = DriveApp.getFolderById(folderId);
     const files = sourceFolder.getFiles();
 
     let fileCount = 0;
@@ -669,7 +678,7 @@ function copyMPDDocuments(employeeId) {
     }
 
     if (fileCount === 0) {
-      console.log(`[MPD] ⚠ La carpeta de origen no tiene archivos (ID: ${MPD_FOLDER_ID})`);
+      console.log(`[MPD] ⚠ La carpeta de origen no tiene archivos (ID: ${folderId})`);
     } else {
       console.log(`[MPD] ✓ Proceso completado. Total de archivos procesados: ${fileCount}`);
     }
