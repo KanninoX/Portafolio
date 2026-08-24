@@ -1,3 +1,9 @@
 .DS_Store
 .claude/
 node_modules/
+
+# Proyecto local de Apps Script (no forma parte del portafolio)
+Código.js
+appsscript.json
+.clasp.json
+README.md
